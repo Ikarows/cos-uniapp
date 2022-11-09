@@ -32,7 +32,7 @@ const serve = {
   }
 }
 
-client.scp('./dist/', serve[ENV], err => {
+client.scp('./dist/build/h5', serve[ENV], err => {
   spinner.stop()
   if (!err) {
     console.log(chalk.green(`项目发布${ENV}环境完毕!`))
