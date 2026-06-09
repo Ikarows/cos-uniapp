@@ -1,94 +1,95 @@
 import axios from 'axios'
-import { auth } from '../store'
+import { useAuthStore } from '@/store'
 
-const store = auth()
+axios.defaults.baseURL =
+  (process.env.NODE_ENV === 'development' ? 'https://xxx.com' : 'https://xxx.com') +
+  '/api'
 
-/* const service = axios.create({
-	timeout: 6000, // request timeout
-	crossDomain: true
-})*/
-
-axios.defaults.baseURL = (process.env.NODE_ENV === 'development' ? 'https://xxx.cn' : 'https://xxx.cn') + '/api.php'
-
-// request拦截器,在请求之前做一些处理
 axios.interceptors.request.use(
   (config: any) => {
-    // 添加请求头
-    config.headers['Authorization'] = store.token
-    // console.log('请求拦截成功')
+    const token = uni.getStorageSync('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
     return config
   },
   error => {
-    console.log(error) // for debug
     return Promise.reject(error)
   }
 )
 
-// 配置成功后的拦截器
 axios.interceptors.response.use(
-  res => {
-    // console.log('res', res)
+  (res: any) => {
     if (res.data) {
-      if (res.data.code === -1 || res.data.code === '-1') {
-        uni.reLaunch({
-          url: '/pages/login/login'
-        })
-        return res.data
-      } else {
+      if (res.data.code === 401) {
+        const authStore = useAuthStore()
+        authStore.logout()
+        return Promise.reject(res.data)
+      }
+      if (res.data.code === 0 || res.data.code === 200) {
         return res.data
       }
-    } else {
-      uni.showToast({
-        title: '无效的请求',
-        icon: 'none',
-        duration: 2000
-      })
+      uni.showToast({ title: res.data.message || '请求失败', icon: 'none' })
       return Promise.reject(res.data)
     }
+    return Promise.reject(res.data)
   },
   error => {
-    uni.showModal({
-      title: '提示',
-      content: error.response.data.message,
-      showCancel: false
-    })
-    if (error.response.status) {
+    if (error.response) {
       switch (error.response.status) {
         case 401:
+          uni.reLaunch({ url: '/pages/login/login' })
+          break
+        case 403:
+          uni.showToast({ title: '暂无权限', icon: 'none' })
+          break
+        case 500:
+          uni.showToast({ title: '服务器异常', icon: 'none' })
           break
         default:
-          break
+          uni.showToast({ title: error.response.data?.message || '网络错误', icon: 'none' })
       }
+    } else {
+      uni.showToast({ title: '网络连接失败', icon: 'none' })
     }
     return Promise.reject(error)
   }
 )
 
-// 在main.js中放入这段自定义适配器的代码，就可以实现uniapp的app和小程序开发中能使用axios进行跨域网络请求，并支持携带cookie
 axios.defaults.adapter = function (config: any) {
-  // console.log('config', config)
-
   return new Promise((resolve, reject) => {
-    var settle = require('axios/lib/core/settle')
-    var buildURL = require('axios/lib/helpers/buildURL')
+    let url = config.baseURL + config.url
+    if (config.params) {
+      const query = Object.keys(config.params)
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(config.params[key])}`)
+        .join('&')
+      url += (url.includes('?') ? '&' : '?') + query
+    }
     uni.request({
       method: config.method.toUpperCase(),
-      url: config.baseURL + buildURL(config.url, config.params, config.paramsSerializer),
+      url: url,
       header: config.headers,
       data: config.data,
       dataType: config.dataType,
       responseType: config.responseType,
       sslVerify: config.sslVerify,
-      complete: function complete(response: any) {
-        // console.log("执行完成：", response)
-        response = {
+      complete: function (response: any) {
+        const res = {
           data: response.data,
           status: response.statusCode,
-          errMsg: response.errMsg,
+          statusText: response.errMsg,
           header: response.header,
-          config: config
+          config: config,
+          request: response
         }
-        settle(resolve, reject, response)
+        if (!res.status || res.status < 200 || res.status >= 300) {
+          const error: any = new Error('Request failed with status code ' + res.status)
+          error.response = res
+          error.config = config
+          reject(error)
+        } else {
+          resolve(res)
+        }
       }
     })
   })
