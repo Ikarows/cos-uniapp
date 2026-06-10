@@ -9,7 +9,10 @@ axios.interceptors.request.use(
   (config: any) => {
     const token = uni.getStorageSync('token')
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`
+      }
     }
     return config
   },
@@ -65,10 +68,17 @@ axios.defaults.adapter = function (config: any) {
         .join('&')
       url += (url.includes('?') ? '&' : '?') + query
     }
+
+    const token = uni.getStorageSync('token')
+    const header: any = { ...config.headers }
+    if (token) {
+      header['Authorization'] = `Bearer ${token}`
+    }
+
     uni.request({
       method: config.method.toUpperCase(),
       url: url,
-      header: config.headers,
+      header: header,
       data: config.data,
       dataType: config.dataType,
       responseType: config.responseType,
