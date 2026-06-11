@@ -1,4 +1,11 @@
 {
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  },
   // pages 里只存放tabber页面和登录页面
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
@@ -8,11 +15,33 @@
 			}
 		},
     {
-			"path": "pages/user/index",
-			"style": {
-				"navigationBarTitleText": "我的"
-			}
-		}
+      "path": "pages/user/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/password",
+      "style": {
+        "navigationBarTitleText": "密码登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/phone",
+      "style": {
+        "navigationBarTitleText": "手机号登录",
+        "navigationStyle": "custom"
+      }
+    }
 	],
 
   "subPackages": [
@@ -23,6 +52,36 @@
           "path": "user_info/index",
           "style": {
             "navigationBarTitleText": "用户信息"
+          }
+        },
+        {
+          "path": "agreement/index",
+          "style": {
+            "navigationBarTitleText": "用户协议"
+          }
+        },
+        {
+          "path": "privacy/index",
+          "style": {
+            "navigationBarTitleText": "隐私政策"
+          }
+        },
+        {
+          "path": "settings/index",
+          "style": {
+            "navigationBarTitleText": "系统设置"
+          }
+        },
+        {
+          "path": "about_us/index",
+          "style": {
+            "navigationBarTitleText": "关于我们"
+          }
+        },
+        {
+          "path": "company_intro/index",
+          "style": {
+            "navigationBarTitleText": "公司介绍"
           }
         }
       ]
@@ -36,14 +95,14 @@
 		"backgroundColor": "#F8F8F8",
 		"list": [{
 				"pagePath": "pages/index/index",
-				"iconPath": "static/img/1-001.png",
-				"selectedIconPath": "static/img/1-002.png",
+				"iconPath": "static/img/tab/tab-home.png",
+				"selectedIconPath": "static/img/tab/tab-home-active.png",
 				"text": "首页"
 			},
 			{
 				"pagePath": "pages/user/index",
-				"iconPath": "static/img/4-001.png",
-				"selectedIconPath": "static/img/4-002.png",
+				"iconPath": "static/img/tab/tab-user.png",
+				"selectedIconPath": "static/img/tab/tab-user-active.png",
 				"text": "我的"
 			}
 		]

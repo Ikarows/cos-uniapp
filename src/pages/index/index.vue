@@ -9,11 +9,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { auth } from '@/store'
 const title = ref('Hello')
-
-const store = auth()
-console.log('store', store.todo)
 </script>
 
 <style>

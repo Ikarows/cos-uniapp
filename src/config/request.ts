@@ -1,5 +1,4 @@
 import axios from 'axios'
-import qs from 'qs'
 import './http'
 
 // 封装get方法
@@ -27,7 +26,7 @@ export function post(url: string, params: any) {
       title: '加载中...'
     })
     axios
-      .post(url, qs.parse(params))
+      .post(url, params)
       .then(res => {
         resolve(res)
         uni.hideLoading()
