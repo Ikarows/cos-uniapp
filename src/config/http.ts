@@ -70,7 +70,17 @@ axios.defaults.adapter = function (config: any) {
     }
 
     const token = uni.getStorageSync('token')
-    const header: any = { ...config.headers }
+    const header: any = {
+      'Content-Type': 'application/json'
+    }
+    if (config.headers) {
+      const keys = Object.keys(config.headers)
+      for (const key of keys) {
+        if (key.toLowerCase() !== 'content-type') {
+          header[key] = config.headers[key]
+        }
+      }
+    }
     if (token) {
       header['Authorization'] = `Bearer ${token}`
     }
